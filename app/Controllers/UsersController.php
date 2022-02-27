@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\View;
+use App\Views\View;
 
 class UsersController
 {

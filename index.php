@@ -1,16 +1,31 @@
 <?php
-
+use App\Controllers\ArticlesController;
 use App\Controllers\UsersController;
-use App\View;
+use App\Redirect;
+use App\Views\View;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 require_once 'vendor/autoload.php';
 
-$dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
-    $r->addRoute('GET', '/users', [\App\Controllers\UsersController::class, 'index']);  // 'App\Controllers\UsersController'
-    $r->addRoute('GET', '/users/{id:\d+}', [\App\Controllers\UsersController::class, 'show']); //handler: 'App\Controllers\UsersController->show'
-}); //Šeit definē adreses un ko tālāk darīt
+$dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
+    //Šeit definē adreses un ko tālāk darīt:
+    // Users
+    $r->addRoute('GET', '/users', [UsersController::class, 'index']);
+    $r->addRoute('GET', '/users/{id:\d+}', [UsersController::class, 'show']);
+
+    // Articles
+    $r->addRoute('GET', '/articles', [ArticlesController::class, 'index']); //'GET', '/articles' != 'POST', '/articles',
+    $r->addRoute('GET', '/articles/{id:\d+}', [ArticlesController::class, 'show']);
+
+    $r->addRoute('POST', '/articles', [ArticlesController::class, 'store']);
+    $r->addRoute('GET', '/articles/create', [ArticlesController::class, 'create']);
+
+    $r->addRoute('POST', '/articles/{id:\d+}/delete', [ArticlesController::class, 'delete']);
+
+    $r->addRoute('GET', '/articles/{id:\d+}/edit', [ArticlesController::class, 'edit']);
+    $r->addRoute('POST', '/articles/{id:\d+}', [ArticlesController::class, 'update']);
+});
 
 // Fetch method and URI from somewhere
 $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -34,10 +49,9 @@ switch ($routeInfo[0]) {
         var_dump("405 Method Not Allowed");
         break;
     case FastRoute\Dispatcher::FOUND:
-        $handler = $routeInfo[1];   //$handler = explode('->', $routeInfo[1]);
+        $handler = $routeInfo[1];   // routeInfo ir array, kas ir iekavās aiz addRoute(0=>'GET', 1=>'/articles', 2=>[ArticlesController::class, 'index'])
         $controller = $handler[0];
         $method = $handler[1];
-
         $vars = $routeInfo[2];
 
         /** @var View $response */ //lai var getPath un getVariables pasaukt
@@ -46,8 +60,13 @@ switch ($routeInfo[0]) {
         $loader = new FilesystemLoader('app/Views'); //filename path
         $twig = new Environment($loader); //noņēmām kašošanu
 
-        //if($response instanceof View)
-        echo $twig->render($response->getPath(), $response->getVariables());
+        if ($response instanceof View) {
+            echo $twig->render($response->getPath() . '.html', $response->getVariables());
+        }
+        if ($response instanceof Redirect) {
+            header('Location: ' . $response->getLocation());
+            exit;
+        }
         break;
 }
 
