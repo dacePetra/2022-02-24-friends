@@ -32,9 +32,6 @@ class ArticlesController
         return new View('Articles/index', [
             'articles' => $articles
         ]);
-//        $stmt = $this->connect()->query('SELECT title, description FROM articles;');
-//        var_dump($stmt);die;
-//        var_dump('show all users');
 //        get information from database
 //        create array with Article objects
     }

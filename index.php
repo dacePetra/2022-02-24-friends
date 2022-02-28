@@ -1,6 +1,9 @@
 <?php
+session_start();
+
 use App\Controllers\ArticlesController;
 use App\Controllers\UsersController;
+use App\Controllers\WelcomeController;
 use App\Redirect;
 use App\Views\View;
 use Twig\Environment;
@@ -10,7 +13,18 @@ require_once 'vendor/autoload.php';
 
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     //Šeit definē adreses un ko tālāk darīt:
+    $r->addRoute('GET', '/', [WelcomeController::class, 'welcome']);
+
     // Users
+    $r->addRoute('GET', '/users/signup', [UsersController::class, 'signup']);
+    $r->addRoute('POST', '/users', [UsersController::class, 'register']);
+
+    $r->addRoute('GET', '/users/error', [UsersController::class, 'error']);
+    $r->addRoute('GET', '/users/email', [UsersController::class, 'email']);
+
+    $r->addRoute('GET', '/users/login', [UsersController::class, 'login']);
+    $r->addRoute('POST', '/users/login', [UsersController::class, 'enter']);
+
     $r->addRoute('GET', '/users', [UsersController::class, 'index']);
     $r->addRoute('GET', '/users/{id:\d+}', [UsersController::class, 'show']);
 
@@ -18,8 +32,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/articles', [ArticlesController::class, 'index']); //'GET', '/articles' != 'POST', '/articles',
     $r->addRoute('GET', '/articles/{id:\d+}', [ArticlesController::class, 'show']);
 
-    $r->addRoute('POST', '/articles', [ArticlesController::class, 'store']);
     $r->addRoute('GET', '/articles/create', [ArticlesController::class, 'create']);
+    $r->addRoute('POST', '/articles', [ArticlesController::class, 'store']);
 
     $r->addRoute('POST', '/articles/{id:\d+}/delete', [ArticlesController::class, 'delete']);
 

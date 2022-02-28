@@ -1,0 +1,30 @@
+<html lang="en">
+<head>
+    <title>FriendsApp</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<p>
+Welcome!
+<br><br>
+<a href="/articles">Articles</a>
+<br>
+<a href="/users/signup">Sign up</a>
+<br>
+<a href="/users/login">Log in</a>
+<br>
+<a href="/users">List of registered users</a>
+<br>
+
+</p>
+<body>
+<header>
+    <div class="wrapper">
+        <ul>
+            <?php if(isset($_SESSION["name"])){ ?>
+            <br>
+            <li><a href="#">Hello, {{ user }}</a></li>
+            <li><a href="includes/logout.inc.php" class="nav">LOGOUT</a></li>
+            <?php } ?>
+        </ul>
+    </div>
+</header>
