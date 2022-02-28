@@ -169,7 +169,6 @@ class UsersController
             // Email not registered
             return new Redirect('/users/login');
         }
-        $checkPwd = password_verify($_POST['logemail'], $usersQuery['password']);
 
         if (!password_verify($_POST['logpassword'], $usersQuery['password'])) {
             // Wrong password
@@ -186,7 +185,7 @@ class UsersController
             ->fetchAssociative();
 
         session_start();
-        $_SESSION["name"] = $userProfilesQuery['name'];
+        $_SESSION["name"] = $userProfilesQuery['name']." ".$userProfilesQuery['surname'];
         $_SESSION["id"] = $userProfilesQuery['user_id'];
         return new Redirect('/welcome');
     }

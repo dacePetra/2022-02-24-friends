@@ -65,7 +65,7 @@ switch ($routeInfo[0]) {
         var_dump("405 Method Not Allowed");
         break;
     case FastRoute\Dispatcher::FOUND:
-        $handler = $routeInfo[1];   // routeInfo ir array, kas ir iekavās aiz addRoute(0=>'GET', 1=>'/articles', 2=>[ArticlesController::class, 'index'])
+        $handler = $routeInfo[1];   // routeInfo array ir iekavās addRoute(0=>'GET', 1=>'/articles', 2=>[ArticlesController::class, 'index'])
         $controller = $handler[0];
         $method = $handler[1];
         $vars = $routeInfo[2];

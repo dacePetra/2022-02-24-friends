@@ -15,8 +15,10 @@ class WelcomeController
     {
         session_start();
         $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
         return new View('welcome', [
-            'active'=>$active
+            'active' => $active,
+            'id' => $activeId
         ]);
     }
 

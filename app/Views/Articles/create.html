@@ -1,8 +1,22 @@
+<html lang="en">
 <head>
     <title>FriendsApp</title>
-    <link rel="stylesheet" href="../../../style.css">
+    <link rel="stylesheet" href="../../style.css">
 </head>
-<a href="/articles">Back</a>
+
+<body>
+<header>
+    <div class="wrapper">
+        <ul>
+            {% if active != "" %}
+            <br>
+            <li>Welcome, {{ active }}!</li>
+            {% endif %}
+            <li><a href="/users/logout">Log out</a></li>
+        </ul>
+    </div>
+</header>
+<a href="/articles">Back</a><br>
 <form method="post" action="/articles">
     <div>
         <label for="title">Title:</label><br>
@@ -18,3 +32,4 @@
         <button type="submit">Create</button>
     </div>
 </form>
+</body>

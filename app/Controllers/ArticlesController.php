@@ -15,7 +15,7 @@ class ArticlesController
             ->createQueryBuilder()
             ->select('*')
             ->from('articles')
-            ->orderBy('created_at', 'desc') //order by created_at desc
+            ->orderBy('created_at', 'desc')
             ->executeQuery()
             ->fetchAllAssociative();
 
@@ -26,14 +26,19 @@ class ArticlesController
                 $articleData['title'],
                 $articleData['description'],
                 $articleData['created_at'],
+                $articleData['author'],
+                $articleData['author_id'],
                 $articleData['id']
             );
         }
+        session_start();
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
         return new View('Articles/index', [
-            'articles' => $articles
+            'articles' => $articles,
+            'active'=>$active,
+            'id' => $activeId
         ]);
-//        get information from database
-//        create array with Article objects
     }
 
     public function show(array $vars): View
@@ -51,34 +56,52 @@ class ArticlesController
             $articlesQuery['title'],
             $articlesQuery['description'],
             $articlesQuery['created_at'],
+            $articlesQuery['author'],
+            $articlesQuery['author_id'],
             $articlesQuery['id']
         );
+        session_start();
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
         return new View('Articles/show', [
-            'article' => $article
+            'article' => $article,
+            'active'=>$active,
+            'id' => $activeId
         ]);
-//  get information from database where article ID = $vars['id']
-//  create Article object
-//  give template for rendering
     }
 
     public function create(array $vars): View
     {
-        return new View('Articles/create');
+        session_start();
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
+        return new View('Articles/create', [
+            'active'=>$active,
+            'id' => $activeId
+        ]);
     }
 
     public function store(): Redirect
     {
-        //validate form, that it is not empty
+        if(empty($_POST['title']) || empty($_POST['description'])){        //validate form, that it is not empty
+            // Empty input
+            return new Redirect('/articles/create');
+        }
+        session_start();
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
+
         Database::connection()
             ->insert('articles', [
                 'title' => $_POST['title'],
-                'description' => $_POST['description']
+                'description' => $_POST['description'],
+                'author' => $active,
+                'author_id' => $activeId
             ]);
 
-        // redirect to /article
         return new Redirect('/articles');
-        //header('Location: /articles');
     }
+
     public function delete(array $vars): Redirect
     {
         Database::connection()->delete('articles', ['id'=> (int) $vars['id']]);
@@ -101,11 +124,18 @@ class ArticlesController
             $articlesQuery['title'],
             $articlesQuery['description'],
             $articlesQuery['created_at'],
+            $articlesQuery['author'],
+            $articlesQuery['author_id'],
             $articlesQuery['id']
         );
+        session_start();
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
 
         return new View('Articles/edit', [
-            'article' => $article
+            'article' => $article,
+            'active'=>$active,
+            'id' => $activeId
         ]);
     }
 

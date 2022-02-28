@@ -7,15 +7,17 @@ class Article
     private string $title;
     private string $description;
     private string $createdAt;
-    //private string $author;
+    private string $author;
+    private int $authorId;
     private ?int $id = null;
 
-    public function __construct(string $title, string $description, string $createdAt, ?int $id = null)
+    public function __construct(string $title, string $description, string $createdAt, string $author, int $authorId,?int $id = null)
     {
         $this->title = $title;
         $this->description = $description;
         $this->createdAt = $createdAt;
-        //$this->author = $author;
+        $this->author = $author;
+        $this->authorId = $authorId;
         $this->id = $id;
     }
 
@@ -34,14 +36,18 @@ class Article
         return $this->createdAt;
     }
 
+    public function getAuthor(): string
+    {
+        return $this->author;
+    }
+
+    public function getAuthorId(): int
+    {
+        return $this->authorId;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
-
-//    public function getAuthor(): ?int
-//    {
-//        return $this->author;
-//    }
-
 }
