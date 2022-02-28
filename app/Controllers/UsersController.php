@@ -152,7 +152,7 @@ class UsersController
         return new View('Users/login');
     }
 
-    public function enter(array $vars)
+    public function enter(array $vars): Redirect
     {
         if(empty($_POST['logemail']) || empty($_POST['logpassword'])){
             // Empty input
@@ -160,7 +160,7 @@ class UsersController
         }
         $usersQuery = Database::connection()
             ->createQueryBuilder()
-            ->select('email, password, id')
+            ->select('email, password, created_at, id')
             ->from('users')
             ->where("email = '{$_POST['logemail']}'")
             ->executeQuery()
@@ -175,13 +175,28 @@ class UsersController
             // Wrong password
             return new Redirect('/users/login');
         }
-        session_start();
-        $_SESSION["id"] = $usersQuery["id"];
-        $_SESSION["name"] = $usersQuery["name"];
-        return new Redirect('/', [
-            'name'=>$name
-        ]);
 
+        $userProfilesQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('user_profiles')
+            ->where('user_id = ?')
+            ->setParameter(0, (int) $usersQuery["id"])
+            ->executeQuery()
+            ->fetchAssociative();
+
+        session_start();
+        $_SESSION["name"] = $userProfilesQuery['name'];
+        $_SESSION["id"] = $userProfilesQuery['user_id'];
+        return new Redirect('/welcome');
+    }
+
+    public function logout(): View
+    {
+        session_start();
+        session_unset();
+        session_destroy();
+        return new View('Users/logout');
     }
 
 }

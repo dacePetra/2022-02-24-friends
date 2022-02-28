@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 use App\Controllers\ArticlesController;
 use App\Controllers\UsersController;
@@ -13,7 +12,8 @@ require_once 'vendor/autoload.php';
 
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     //Šeit definē adreses un ko tālāk darīt:
-    $r->addRoute('GET', '/', [WelcomeController::class, 'welcome']);
+    $r->addRoute('GET', '/', [WelcomeController::class, 'opening']);
+    $r->addRoute('GET', '/welcome', [WelcomeController::class, 'welcome']);
 
     // Users
     $r->addRoute('GET', '/users/signup', [UsersController::class, 'signup']);
@@ -24,6 +24,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/users/login', [UsersController::class, 'login']);
     $r->addRoute('POST', '/users/login', [UsersController::class, 'enter']);
+
+    $r->addRoute('GET', '/users/logout', [UsersController::class, 'logout']);
 
     $r->addRoute('GET', '/users', [UsersController::class, 'index']);
     $r->addRoute('GET', '/users/{id:\d+}', [UsersController::class, 'show']);
