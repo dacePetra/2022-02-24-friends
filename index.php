@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 use App\Controllers\ArticlesController;
 use App\Controllers\UsersController;
@@ -19,9 +20,6 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/users/signup', [UsersController::class, 'signup']);
     $r->addRoute('POST', '/users', [UsersController::class, 'register']);
 
-    $r->addRoute('GET', '/users/error', [UsersController::class, 'error']);
-    $r->addRoute('GET', '/users/email', [UsersController::class, 'email']);
-
     $r->addRoute('GET', '/users/login', [UsersController::class, 'login']);
     $r->addRoute('POST', '/users/login', [UsersController::class, 'enter']);
 
@@ -41,6 +39,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/articles/{id:\d+}/edit', [ArticlesController::class, 'edit']);
     $r->addRoute('POST', '/articles/{id:\d+}', [ArticlesController::class, 'update']);
+
 });
 
 // Fetch method and URI from somewhere
@@ -56,12 +55,10 @@ $uri = rawurldecode($uri);
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::NOT_FOUND:
-        // ... 404 Not Found
         var_dump("404 Not Found");
         break;
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
         $allowedMethods = $routeInfo[1];
-        // ... 405 Method Not Allowed
         var_dump("405 Method Not Allowed");
         break;
     case FastRoute\Dispatcher::FOUND:
@@ -74,7 +71,7 @@ switch ($routeInfo[0]) {
         $response = (new $controller)->$method($vars);
 
         $loader = new FilesystemLoader('app/Views'); //filename path
-        $twig = new Environment($loader); //noņēmām kašošanu
+        $twig = new Environment($loader);
 
         if ($response instanceof View) {
             echo $twig->render($response->getPath() . '.html', $response->getVariables());
@@ -84,5 +81,10 @@ switch ($routeInfo[0]) {
             exit;
         }
         break;
+}
+
+if (isset($_SESSION['inputTitle']) || isset($_SESSION['inputDescription'])) {
+    unset ($_SESSION['inputTitle']);
+    unset ($_SESSION['inputDescription']);
 }
 

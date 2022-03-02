@@ -11,16 +11,19 @@
             {% if active != "" %}
             <br>
             <li>Welcome, {{ active }}!</li>
-            {% endif %}
             <li><a href="/users/logout">Log out</a></li>
+            {% endif %}
         </ul>
     </div>
 </header>
 
 <a href="/articles">Back to list</a>
+<h1>{{ article.title}}</h1><br>
 
-<h1>{{ article.title}}</h1>
+
+
 {% if article.author == active %}
+<br>
 (<a href="/articles/{{ article.id }}/edit">Edit</a></small>)
 {% endif %}
 <p>{{ article.description }}</p>

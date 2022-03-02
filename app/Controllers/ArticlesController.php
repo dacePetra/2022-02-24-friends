@@ -31,7 +31,7 @@ class ArticlesController
                 $articleData['id']
             );
         }
-        session_start();
+//        session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
         return new View('Articles/index', [
@@ -60,34 +60,90 @@ class ArticlesController
             $articlesQuery['author_id'],
             $articlesQuery['id']
         );
-        session_start();
+        $articlesLikesQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('articles_likes')
+            ->where('article_id = ?')
+            ->setParameter(0, (int) $vars['id'])
+            ->executeQuery()
+            ->fetchAssociative();
+
+//        $likesCount = count($articlesLikesQuery)-1;
+//        $likers = [];
+//
+//        foreach ($articlesLikesQuery as $entry){
+//            $likers [] = $entry->user_id_likes;
+//        }
+//        if(in_array($_SESSION["id"], $likers)){
+//            $liked = true;
+//        }else {
+//            $liked = false;
+//        }
+//        session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
         return new View('Articles/show', [
             'article' => $article,
             'active'=>$active,
             'id' => $activeId
+//       ,     'likesCount' => $likesCount,
+//            'likers' => $likers,
+//            'liked' => $liked
         ]);
     }
 
+//    public function like(array $vars): Redirect
+//    {
+//        $articlesLikesQuery = Database::connection()
+//            ->createQueryBuilder()
+//            ->select('*')
+//            ->from('articles_likes')
+//            ->where('article_id = ?')
+//            ->setParameter(0, (int) $vars['id'])
+//            ->executeQuery()
+//            ->fetchAssociative();
+//        var_dump($articlesLikesQuery->num_rows);die;
+//        $likers = [];
+//        foreach ($articlesLikesQuery as $entry){
+//            $likers [] = $entry->user_id_likes;
+//        }
+//
+//        if(!in_array($_SESSION["id"], $likers)){
+//            Database::connection()
+//                ->insert('articles_likes', [
+//                    'article_id' => (int) $vars['id'],
+//                    'user_id_liked' => $_SESSION["id"]
+//                ]);
+//        }
+//
+//
+//        return new Redirect('/articles/'.$vars['id']);
+//    }
+
     public function create(array $vars): View
     {
-        session_start();
+        $inputTitle = $_SESSION["inputTitle"];
+        $inputDescription =  $_SESSION["inputDescription"];
+ //       session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
         return new View('Articles/create', [
             'active'=>$active,
-            'id' => $activeId
+            'id' => $activeId,
+            'inputTitle' => $inputTitle,
+            'inputDescription' => $inputDescription
         ]);
     }
 
     public function store(): Redirect
     {
         if(empty($_POST['title']) || empty($_POST['description'])){        //validate form, that it is not empty
-            // Empty input
+            $_SESSION["inputTitle"]=$_POST['title'];
+            $_SESSION["inputDescription"]=$_POST['description'];
             return new Redirect('/articles/create');
         }
-        session_start();
+ //       session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
 
@@ -104,8 +160,8 @@ class ArticlesController
 
     public function delete(array $vars): Redirect
     {
-        Database::connection()->delete('articles', ['id'=> (int) $vars['id']]);
-        // DELETE FROM articles WHERE id=?
+        Database::connection()
+            ->delete('articles', ['id'=> (int) $vars['id']]);
         return new Redirect('/articles');
     }
 
@@ -128,7 +184,7 @@ class ArticlesController
             $articlesQuery['author_id'],
             $articlesQuery['id']
         );
-        session_start();
+ //       session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
 
@@ -142,10 +198,12 @@ class ArticlesController
     public function update(array $vars): Redirect
     {
         //UPDATE articles SET title = ? AND description = ? WHERE id = ?
-        Database::connection()->update('articles', [
-            'title' => $_POST['title'],
-            'description' => $_POST['description'],
-        ], ['id'=> (int)$vars['id']]);
+        Database::connection()
+            ->update('articles', [
+                'title' => $_POST['title'],
+                'description' => $_POST['description'],
+            ], ['id'=> (int)$vars['id']]
+            );
         return new Redirect('/articles/'.$vars['id']);
     }
 

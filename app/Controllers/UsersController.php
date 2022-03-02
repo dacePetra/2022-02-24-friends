@@ -86,33 +86,33 @@ class UsersController
 
     public function register(array $vars):Redirect
     {
-        if(empty($_POST['name']) || empty($_POST['surname']) || empty($_POST['birthday']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['password_repeat'])){
-            // Empty input
-            return new Redirect('/users/error');
-        }
-        if(!preg_match("/^[a-zA-Z]*$/", $_POST['name']) || !preg_match("/^[a-zA-Z]*$/", $_POST['surname'])){
-            // Invalid name or surname
-            return new Redirect('/users/error');
-        }
-        if($_POST['password'] != $_POST['password_repeat']){
-            // Passwords don't match
-            return new Redirect('/users/error');
-        }
-        if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
-            // Invalid email
-            return new Redirect('/users/error');
-        }
-        $usersQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('email')
-            ->from('users')
-            ->where("email = '{$_POST['email']}'")
-            ->executeQuery()
-            ->fetchAssociative();
-        if($usersQuery!=false){
-            // Email taken
-            return new Redirect('/users/email');
-        }
+//        if(empty($_POST['name']) || empty($_POST['surname']) || empty($_POST['birthday']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['password_repeat'])){
+//            // Empty input
+//            return new Redirect('/users/error');
+//        }
+//        if(!preg_match("/^[a-zA-Z]*$/", $_POST['name']) || !preg_match("/^[a-zA-Z]*$/", $_POST['surname'])){
+//            // Invalid name or surname
+//            return new Redirect('/users/error');
+//        }
+//        if($_POST['password'] != $_POST['password_repeat']){
+//            // Passwords don't match
+//            return new Redirect('/users/error');
+//        }
+//        if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
+//            // Invalid email
+//            return new Redirect('/users/error');
+//        }
+//        $usersQuery = Database::connection()
+//            ->createQueryBuilder()
+//            ->select('email')
+//            ->from('users')
+//            ->where("email = '{$_POST['email']}'")
+//            ->executeQuery()
+//            ->fetchAssociative();
+//        if($usersQuery!=false){
+//            // Email taken
+//            return new Redirect('/users/email');
+//        }
         $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
         Database::connection()
             ->insert('users', [
@@ -123,9 +123,11 @@ class UsersController
             ->createQueryBuilder()
             ->select('email, id')
             ->from('users')
-            ->where("email = '{$_POST['email']}'")
+            ->where('email = ?')
+            ->setParameter(0, $_POST['email'])
             ->executeQuery()
             ->fetchAssociative();
+
         $id = $usersQuery["id"];
         Database::connection()
             ->insert('user_profiles', [
@@ -137,15 +139,15 @@ class UsersController
         return new Redirect('/');
     }
 
-    public function error(array $vars): View
-    {
-        return new View('Users/error');
-    }
-
-    public function email(array $vars): View
-    {
-        return new View('Users/email');
-    }
+//    public function error(array $vars): View
+//    {
+//        return new View('Users/error');
+//    }
+//
+//    public function email(array $vars): View
+//    {
+//        return new View('Users/email');
+//    }
 
     public function login(array $vars): View
     {
@@ -154,26 +156,28 @@ class UsersController
 
     public function enter(array $vars): Redirect
     {
-        if(empty($_POST['logemail']) || empty($_POST['logpassword'])){
-            // Empty input
-            return new Redirect('/users/error');
-        }
+//        if(empty($_POST['logemail']) || empty($_POST['logpassword'])){
+//            // Empty input
+//            return new Redirect('/users/error');
+//        }
         $usersQuery = Database::connection()
             ->createQueryBuilder()
             ->select('email, password, created_at, id')
             ->from('users')
-            ->where("email = '{$_POST['logemail']}'")
+            ->where('email = ?')
+            ->setParameter(0, $_POST['input_email'])
             ->executeQuery()
             ->fetchAssociative();
-        if($usersQuery['email']!=$_POST['logemail']){
-            // Email not registered
-            return new Redirect('/users/login');
-        }
 
-        if (!password_verify($_POST['logpassword'], $usersQuery['password'])) {
-            // Wrong password
-            return new Redirect('/users/login');
-        }
+//        if($usersQuery['email']!=$_POST['input_email']){
+//            // Email not registered
+//            return new Redirect('/users/login');
+//        }
+//
+//        if (!password_verify($_POST['input_password'], $usersQuery['password'])) {
+//            // Wrong password
+//            return new Redirect('/users/login');
+//        }
 
         $userProfilesQuery = Database::connection()
             ->createQueryBuilder()
@@ -184,7 +188,6 @@ class UsersController
             ->executeQuery()
             ->fetchAssociative();
 
-        session_start();
         $_SESSION["name"] = $userProfilesQuery['name']." ".$userProfilesQuery['surname'];
         $_SESSION["id"] = $userProfilesQuery['user_id'];
         return new Redirect('/welcome');
@@ -192,7 +195,6 @@ class UsersController
 
     public function logout(): View
     {
-        session_start();
         session_unset();
         session_destroy();
         return new View('Users/logout');
