@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+use App\Controllers\ArticleCommentsController;
 use App\Controllers\ArticlesController;
 use App\Controllers\UsersController;
 use App\Controllers\WelcomeController;
@@ -11,7 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 require_once 'vendor/autoload.php';
 
-$dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
+$dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {  //'GET', '/articles' != 'POST', '/articles',
     //Šeit definē adreses un ko tālāk darīt:
     $r->addRoute('GET', '/', [WelcomeController::class, 'opening']);
     $r->addRoute('GET', '/welcome', [WelcomeController::class, 'welcome']);
@@ -29,7 +30,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/users/{id:\d+}', [UsersController::class, 'show']);
 
     // Articles
-    $r->addRoute('GET', '/articles', [ArticlesController::class, 'index']); //'GET', '/articles' != 'POST', '/articles',
+    $r->addRoute('GET', '/articles', [ArticlesController::class, 'index']);
     $r->addRoute('GET', '/articles/{id:\d+}', [ArticlesController::class, 'show']);
 
     $r->addRoute('GET', '/articles/create', [ArticlesController::class, 'create']);
@@ -39,6 +40,11 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/articles/{id:\d+}/edit', [ArticlesController::class, 'edit']);
     $r->addRoute('POST', '/articles/{id:\d+}', [ArticlesController::class, 'update']);
+
+    $r->addRoute('POST', '/articles/{id:\d+}/like', [ArticlesController::class, 'like']);
+
+    $r->addRoute('POST', '/articles/{id:\d+}/comment', [ArticleCommentsController::class, 'comment']);
+    $r->addRoute('POST', '/articles/{id:\d+}/erase/{nr:\d+}', [ArticleCommentsController::class, 'erase']);
 
 });
 
@@ -62,12 +68,12 @@ switch ($routeInfo[0]) {
         var_dump("405 Method Not Allowed");
         break;
     case FastRoute\Dispatcher::FOUND:
-        $handler = $routeInfo[1];   // routeInfo array ir iekavās addRoute(0=>'GET', 1=>'/articles', 2=>[ArticlesController::class, 'index'])
+        $handler = $routeInfo[1];   // routeInfo array is in brackets addRoute(0=>'GET', 1=>'/articles/{id:\d+}/edit', 2=>[ArticlesController::class, 'index'])
         $controller = $handler[0];
         $method = $handler[1];
         $vars = $routeInfo[2];
 
-        /** @var View $response */ //lai var getPath un getVariables pasaukt
+        /** @var View $response */ // because of this getPath and getVariables can be called
         $response = (new $controller)->$method($vars);
 
         $loader = new FilesystemLoader('app/Views'); //filename path

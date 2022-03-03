@@ -18,17 +18,57 @@
 </header>
 
 <a href="/articles">Back to list</a>
-<h1>{{ article.title}}</h1><br>
-
-
-
-{% if article.author == active %}
-<br>
-(<a href="/articles/{{ article.id }}/edit">Edit</a></small>)
+<h1>{{ article.title}}</h1>
+<p>
+<small>Likes: {{ articleLikes }}</small>
+</p>
+{% if liked == false %}
+<form method="post" action="/articles/{{ article.id }}/like">
+    <button type="submit">Like</button>
+</form>
 {% endif %}
 <p>{{ article.description }}</p>
 <p>
     <small>{{ article.createdAt }}</small><br>
     <small>Author: {{ article.author }}</small>
+    <br>
+    {% if article.author == active %}
+    (<a href="/articles/{{ article.id }}/edit">Edit</a></small>)
+    {% endif %}
+</p>
+<br>
+<p>
+<form method="post" action="/articles/{{ article.id }}/comment">
+    <div>
+        <label for="comment">Leave your comment:</label><br>
+        <textarea type="text" id="comment" name="comment"></textarea>
+    </div>
+    <br>
+    <div>
+        <button type="submit">Add comment</button>
+    </div>
+</form>
+</p>
+<p>
+<ul>
+    COMMENTS ({{ numberOfComments }})<br>
+    {% for comment in comments %}
+    <li>
+        --------------------------------------------------------------
+        <br>
+        <small>{{ comment.createdAt }}</small>
+        <br>
+        <small>Author: {{ comment.author }}</small>
+        <br>
+        {{ comment.text }}
+        <br>
+        <form method="post" class="cx" action="/articles/{{ article.id }}/erase/{{ comment.id }}">
+            {% if comment.author == active %}
+            <button type="submit" onclick="return confirm('Are you sure you want to delete this comment?')">X</button>
+            {% endif %}
+        </form>
+    </li>
+    {% endfor %}
+</ul>
 </p>
 </body>

@@ -17,11 +17,18 @@ header {
 h2 {
     margin-left: 50px;
 }
+h1 {
+    margin-left: 50px;
+}
 
 p {
     margin-left: 50px;
 }
 form {
-    margin-left: 20px;
+    margin-left: 50px;
+    display: inline-block;
+}
+.cx {
+    margin-left: 0px;
     display: inline-block;
 }

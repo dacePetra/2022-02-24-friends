@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Database;
 use App\Models\Article;
+use App\Models\Comment;
 use App\Redirect;
 use App\Views\View;
 
@@ -31,24 +32,26 @@ class ArticlesController
                 $articleData['id']
             );
         }
-//        session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
         return new View('Articles/index', [
             'articles' => $articles,
-            'active'=>$active,
+            'active' => $active,
             'id' => $activeId
         ]);
     }
 
     public function show(array $vars): View
     {
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
+        $articleId = (int)$vars['id'];
         $articlesQuery = Database::connection()
             ->createQueryBuilder()
             ->select('*')
             ->from('articles')
             ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
+            ->setParameter(0, $articleId)
             ->executeQuery()
             ->fetchAssociative();
 
@@ -60,76 +63,66 @@ class ArticlesController
             $articlesQuery['author_id'],
             $articlesQuery['id']
         );
-        $articlesLikesQuery = Database::connection()
+
+        $articleLikesQuery = Database::connection()
             ->createQueryBuilder()
             ->select('*')
-            ->from('articles_likes')
+            ->from('article_likes')
             ->where('article_id = ?')
-            ->setParameter(0, (int) $vars['id'])
+            ->setParameter(0, $articleId)
             ->executeQuery()
-            ->fetchAssociative();
+            ->fetchAllAssociative();
 
-//        $likesCount = count($articlesLikesQuery)-1;
-//        $likers = [];
-//
-//        foreach ($articlesLikesQuery as $entry){
-//            $likers [] = $entry->user_id_likes;
-//        }
-//        if(in_array($_SESSION["id"], $likers)){
-//            $liked = true;
-//        }else {
-//            $liked = false;
-//        }
-//        session_start();
-        $active = $_SESSION["name"];
-        $activeId = $_SESSION["id"];
+        $likerList = [];
+        foreach ($articleLikesQuery as $entry) {
+            $likerList [] = $entry['user_id'];
+        }
+        $liked = in_array($activeId, $likerList);
+        $articleLikes = count($likerList);
+
+        $commentsQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('article_comments')
+            ->where('article_id = ?')
+            ->setParameter(0, $articleId)
+            ->orderBy('created_at', 'desc')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        //check if not null, then create object
+        $comments = [];
+        foreach ($commentsQuery as $commentData) {
+            $comments [] = new Comment(
+                $commentData['article_id'],
+                $commentData['created_at'],
+                $commentData['author'],
+                $commentData['author_id'],
+                $commentData['text'],
+                $commentData['id']
+            );
+        }
+        $numberOfComments = count($comments);
+
         return new View('Articles/show', [
             'article' => $article,
-            'active'=>$active,
-            'id' => $activeId
-//       ,     'likesCount' => $likesCount,
-//            'likers' => $likers,
-//            'liked' => $liked
+            'comments' => $comments,
+            'articleLikes' => $articleLikes,
+            'numberOfComments' => $numberOfComments,
+            'active' => $active,
+            'id' => $activeId,
+            'liked' => $liked
         ]);
     }
-
-//    public function like(array $vars): Redirect
-//    {
-//        $articlesLikesQuery = Database::connection()
-//            ->createQueryBuilder()
-//            ->select('*')
-//            ->from('articles_likes')
-//            ->where('article_id = ?')
-//            ->setParameter(0, (int) $vars['id'])
-//            ->executeQuery()
-//            ->fetchAssociative();
-//        var_dump($articlesLikesQuery->num_rows);die;
-//        $likers = [];
-//        foreach ($articlesLikesQuery as $entry){
-//            $likers [] = $entry->user_id_likes;
-//        }
-//
-//        if(!in_array($_SESSION["id"], $likers)){
-//            Database::connection()
-//                ->insert('articles_likes', [
-//                    'article_id' => (int) $vars['id'],
-//                    'user_id_liked' => $_SESSION["id"]
-//                ]);
-//        }
-//
-//
-//        return new Redirect('/articles/'.$vars['id']);
-//    }
 
     public function create(array $vars): View
     {
         $inputTitle = $_SESSION["inputTitle"];
-        $inputDescription =  $_SESSION["inputDescription"];
- //       session_start();
+        $inputDescription = $_SESSION["inputDescription"];
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
         return new View('Articles/create', [
-            'active'=>$active,
+            'active' => $active,
             'id' => $activeId,
             'inputTitle' => $inputTitle,
             'inputDescription' => $inputDescription
@@ -138,12 +131,11 @@ class ArticlesController
 
     public function store(): Redirect
     {
-        if(empty($_POST['title']) || empty($_POST['description'])){        //validate form, that it is not empty
-            $_SESSION["inputTitle"]=$_POST['title'];
-            $_SESSION["inputDescription"]=$_POST['description'];
+        if (empty($_POST['title']) || empty($_POST['description'])) {  //validate form - it is not empty
+            $_SESSION["inputTitle"] = $_POST['title'];
+            $_SESSION["inputDescription"] = $_POST['description'];
             return new Redirect('/articles/create');
         }
- //       session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
 
@@ -161,7 +153,7 @@ class ArticlesController
     public function delete(array $vars): Redirect
     {
         Database::connection()
-            ->delete('articles', ['id'=> (int) $vars['id']]);
+            ->delete('articles', ['id' => (int)$vars['id']]);
         return new Redirect('/articles');
     }
 
@@ -172,7 +164,7 @@ class ArticlesController
             ->select('*')
             ->from('articles')
             ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
+            ->setParameter(0, (int)$vars['id'])
             ->executeQuery()
             ->fetchAssociative();
 
@@ -184,27 +176,52 @@ class ArticlesController
             $articlesQuery['author_id'],
             $articlesQuery['id']
         );
- //       session_start();
         $active = $_SESSION["name"];
         $activeId = $_SESSION["id"];
 
         return new View('Articles/edit', [
             'article' => $article,
-            'active'=>$active,
+            'active' => $active,
             'id' => $activeId
         ]);
     }
 
     public function update(array $vars): Redirect
     {
-        //UPDATE articles SET title = ? AND description = ? WHERE id = ?
         Database::connection()
             ->update('articles', [
                 'title' => $_POST['title'],
                 'description' => $_POST['description'],
-            ], ['id'=> (int)$vars['id']]
+            ], ['id' => (int)$vars['id']]
             );
-        return new Redirect('/articles/'.$vars['id']);
+        return new Redirect('/articles/' . $vars['id']);
+    }
+
+    public function like(array $vars): Redirect
+    {
+        $activeId = $_SESSION["id"];
+        $articleId = (int)$vars['id'];
+        $userId = $activeId;
+        $articleLikesQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('article_likes')
+            ->where('article_id = ?')
+            ->setParameter(0, $articleId)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $likerList = [];
+        foreach ($articleLikesQuery as $entry) {
+            $likerList [] = $entry['user_id'];
+        }
+        if (!in_array($activeId, $likerList)) {
+            Database::connection()->insert('article_likes', [
+                'article_id' => $articleId,
+                'user_id' => $userId
+            ]);
+        }
+        return new Redirect("/articles/{$articleId}");
     }
 
 }
