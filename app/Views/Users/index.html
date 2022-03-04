@@ -23,7 +23,7 @@ All users
 <ul>
     {% for availableUser in availableUsers %}
     <li>
-        {% if activeId != availableUsers.id %}
+        {% if activeId != availableUser.id %}
         {{ availableUser.name }} {{ availableUser.surname }} ({{ availableUser.email }})
         <form method="post" action="/users/{{ availableUser.id }}/invite">
             <button type="submit">Invite</button>

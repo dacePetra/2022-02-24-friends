@@ -42,7 +42,7 @@ class UsersController
         }
 
         $active = $_SESSION["name"];
-        $activeId = $_SESSION["id"];
+        $activeId = (int) $_SESSION["id"];
         //----------------------------------------------------------------
         $invitedFriendsQuery = Database::connection()
             ->createQueryBuilder()
