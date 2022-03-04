@@ -21,11 +21,12 @@ class ArticleCommentsController
             ]);
         return new Redirect('/articles/'.$vars['id']);
     }
+
     public function erase(array $vars): Redirect
     {
         Database::connection()
-            ->delete('article_comments', ['id'=> (int) $vars['nr']]);
-        return new Redirect('/articles/'.$vars['id']);
+            ->delete('article_comments', ['id'=> (int) $vars['id']]);
+        return new Redirect('/articles/'.$vars['nr']);
     }
 
 }

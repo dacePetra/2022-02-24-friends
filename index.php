@@ -14,7 +14,7 @@ use Twig\Loader\FilesystemLoader;
 require_once 'vendor/autoload.php';
 
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {  //'GET', '/articles' != 'POST', '/articles',
-    //Šeit definē adreses un ko tālāk darīt:
+    //Define routes adn what to do next:
     $r->addRoute('GET', '/', [WelcomeController::class, 'opening']);
     $r->addRoute('GET', '/welcome', [WelcomeController::class, 'welcome']);
 
@@ -52,7 +52,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/articles/{id:\d+}/like', [ArticlesController::class, 'like']);
 
     $r->addRoute('POST', '/articles/{id:\d+}/comment', [ArticleCommentsController::class, 'comment']);
-    $r->addRoute('POST', '/articles/{id:\d+}/erase/{nr:\d+}', [ArticleCommentsController::class, 'erase']);
+    $r->addRoute('POST', '/articles/{nr:\d+}/erase/{id:\d+}', [ArticleCommentsController::class, 'erase']);
 
 });
 
