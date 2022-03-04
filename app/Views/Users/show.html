@@ -1,8 +1,19 @@
-<head>
-    <title>FriendsApp</title>
-    <link rel="stylesheet" href="../../../style.css">
-</head>
-<a href="/">Back</a><br><br>
-show single user:
+{% extends "base.html" %}
 
-<p>{{ user.name }} {{ user.surname }} ({{ user.email }})</p>
+{% block content %}
+{% if active != "" %}
+<br>
+{% block back %}
+    <a href="/friends">Back</a>
+{% endblock %}
+<h2>
+    {{ user.name }} {{ user.surname }}
+</h2>
+<p>
+    E-mail: {{ user.email }}
+</p>
+<p>
+    Birthday: {{ user.birthday }}
+</p>
+{% endif %}
+{% endblock %}

@@ -43,7 +43,7 @@ class UsersController
 
         $active = $_SESSION["name"];
         $activeId = (int) $_SESSION["id"];
-        //----------------------------------------------------------------
+
         $invitedFriendsQuery = Database::connection()
             ->createQueryBuilder()
             ->select('*')
@@ -139,8 +139,6 @@ class UsersController
             }
         }
         $invitedOrFriend = [...$invitedUsers, ...$friends];
-
-
         $availableUsers = [];
         foreach ($users as $user){
             if(!in_array($user, $invitedOrFriend)){
@@ -185,8 +183,13 @@ class UsersController
                         $usersQuery['id']
                     );
 
+        $active = $_SESSION["name"];
+        $activeId = (int) $_SESSION["id"];
+
         return new View('Users/show', [
-            'user'=>$user
+            'user'=>$user,
+            'active' => $active,
+            'activeId' => $activeId
         ]);
     }
 

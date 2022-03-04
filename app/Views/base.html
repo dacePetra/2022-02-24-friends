@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <title>FriendsApp</title>
+    <link rel="stylesheet" href="../../style.css">
+    {% endblock %}
+</head>
+<body id="body">
+{% block body %}
+<header id="header">
+    {% block header %}
+    {% if active != "" %}
+    <h4>Welcome, {{ active }}!</h4>
+    <a id="logout" href="/users/logout">Log out</a>
+    {% endif %}
+    {% endblock %}
+</header>
+<div id="content">
+    {% block content %}
+    <p id="back">
+        {% block back %}
+        {% endblock %}
+    </p>
+    {% endblock %}
+</div>
+{% endblock %}
+</body>
+</html>

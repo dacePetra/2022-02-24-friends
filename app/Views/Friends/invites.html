@@ -1,23 +1,13 @@
-<html lang="en">
-<head>
-    <title>FriendsApp</title>
-    <link rel="stylesheet" href="../../style.css">
-</head>
+{% extends "base.html" %}
 
-<body>
-<header>
-    <div class="wrapper">
-        <ul>
-            {% if active != "" %}
-            <br>
-            <li>Welcome, {{ active }}!</li>
-            <li><a href="/users/logout">Log out</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</header>
-<a href="/welcome">Back</a><br><br>
-Pending invitations
+{% block content %}
+{% if active != "" %}
+<br>
+{% block back %}
+<a href="/welcome">Back</a>
+{% endblock %}
+<br><br>
+<h2>Pending invitations</h2>
 <ul>
     {% for invite in invites %}
     <li>
@@ -29,4 +19,5 @@ Pending invitations
     </li>
     {% endfor %}
 </ul>
-
+{% endif %}
+{% endblock %}

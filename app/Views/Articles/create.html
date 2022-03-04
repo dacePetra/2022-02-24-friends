@@ -1,38 +1,26 @@
-<html lang="en">
-<head>
-    <title>FriendsApp</title>
-    <link rel="stylesheet" href="../../style.css">
-</head>
+{% extends "base.html" %}
 
-<body>
-<header>
-    <div class="wrapper">
-        <ul>
-            {% if active != "" %}
-            <br>
-            <li>Welcome, {{ active }}!</li>
-            <li><a href="/users/logout">Log out</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</header>
-<a href="/articles">Back</a><br>
+{% block content %}
+{% if active != "" %}
+<br>
+{% block back %}
+<a href="/articles">Back</a>
+{% endblock %}
+<br><br>
 <form method="post" action="/articles">
     <div>
-
         <label for="title">Title:</label><br>
         <input type="text" id="title" name="title" value="{{ inputTitle }}"/>
     </div>
     <br>
     <div>
-
         <label for="description">Description:</label><br>
         <textarea type="text" id="description" name="description">{{ inputDescription }}</textarea>
-
     </div>
     <br>
     <div>
         <button type="submit">Create</button>
     </div>
 </form>
-</body>
+{% endif %}
+{% endblock %}

@@ -1,23 +1,12 @@
-<html lang="en">
-<head>
-    <title>FriendsApp</title>
-    <link rel="stylesheet" href="../../style.css">
-</head>
+{% extends "base.html" %}
 
-<body>
-<header>
-    <div class="wrapper">
-        <ul>
-            {% if active != "" %}
-            <br>
-            <li>Welcome, {{ active }}!</li>
-            <li><a href="/users/logout">Log out</a></li>
-            {% endif %}
-
-        </ul>
-    </div>
-</header>
-<a href="/articles">Back</a><br><br>
+{% block content %}
+{% if active != "" %}
+<br>
+{% block back %}
+<a href="/articles/{{ article.id }}">Back</a>
+{% endblock %}
+<h2>Edit article</h2>
 <form method="post" action="/articles/{{ article.id }}">
     <div>
         <label for="title">Title:</label><br>
@@ -33,4 +22,5 @@
         <button type="submit">Update</button>
     </div>
 </form>
-</body>
+{% endif %}
+{% endblock %}

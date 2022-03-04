@@ -1,42 +1,30 @@
-<html lang="en">
-<head>
-    <title>FriendsApp</title>
-    <link rel="stylesheet" href="../../style.css">
-</head>
+{% extends "base.html" %}
 
-<body>
-<header>
-    <div class="wrapper">
-        <ul>
-            {% if active != "" %}
-            <br>
-            <li>Welcome, {{ active }}!</li>
-            <li><a href="/users/logout">Log out</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</header>
-
+{% block content %}
+{% if active != "" %}
+<br>
+{% block back %}
 <a href="/articles">Back to list</a>
-<h1>{{ article.title}}</h1>
+{% endblock %}
+<h2>{{ article.title }}</h2>
+<p>{{ article.description }}</p>
 <p>
-<small>Likes: {{ articleLikes }}</small>
+    <small>{{ article.createdAt }}</small><br>
+    <small>Author: {{ article.author }}</small>
+</p>
+<p>
+    {% if article.author == active %}
+    (<a class="nomargin" href="/articles/{{ article.id }}/edit">Edit</a></small>)
+    {% endif %}
+</p>
+<p>
+    <small>Likes: {{ articleLikes }}</small>
 </p>
 {% if liked == false %}
 <form method="post" action="/articles/{{ article.id }}/like">
     <button type="submit">Like</button>
 </form>
 {% endif %}
-<p>{{ article.description }}</p>
-<p>
-    <small>{{ article.createdAt }}</small><br>
-    <small>Author: {{ article.author }}</small>
-    <br>
-    {% if article.author == active %}
-    (<a href="/articles/{{ article.id }}/edit">Edit</a></small>)
-    {% endif %}
-</p>
-<br>
 <p>
 <form method="post" action="/articles/{{ article.id }}/comment">
     <div>
@@ -50,11 +38,12 @@
 </form>
 </p>
 <p>
+<br>
+<h4>COMMENTS ({{ numberOfComments }})</h4>
 <ul>
-    COMMENTS ({{ numberOfComments }})<br>
     {% for comment in comments %}
     <li>
-        --------------------------------------------------------------
+        --------------------------------------------
         <br>
         <small>{{ comment.createdAt }}</small>
         <br>
@@ -71,4 +60,5 @@
     {% endfor %}
 </ul>
 </p>
-</body>
+{% endif %}
+{% endblock %}
