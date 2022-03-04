@@ -17,19 +17,16 @@
     </div>
 </header>
 <a href="/welcome">Back</a><br><br>
-
-All users
-
+Pending invitations
 <ul>
-    {% for availableUser in availableUsers %}
+    {% for invite in invites %}
     <li>
-        {% if activeId != availableUsers.id %}
-        {{ availableUser.name }} {{ availableUser.surname }} ({{ availableUser.email }})
-        <form method="post" action="/users/{{ availableUser.id }}/invite">
-            <button type="submit">Invite</button>
+        {{ invite.name }} {{ invite.surname }}
+        <form method="post" action="/invites/{{ invite.id }}/invite">
+            <button type="submit">Accept</button>
         </form>
+        <br>
     </li>
-    {% endif %}
     {% endfor %}
-
 </ul>
+

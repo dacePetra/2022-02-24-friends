@@ -3,6 +3,7 @@ session_start();
 
 use App\Controllers\ArticleCommentsController;
 use App\Controllers\ArticlesController;
+use App\Controllers\FriendsController;
 use App\Controllers\UsersController;
 use App\Controllers\WelcomeController;
 use App\Redirect;
@@ -28,6 +29,13 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/users', [UsersController::class, 'index']);
     $r->addRoute('GET', '/users/{id:\d+}', [UsersController::class, 'show']);
+
+    $r->addRoute('POST', '/users/{id:\d+}/invite', [FriendsController::class, 'invite']);
+
+    $r->addRoute('GET', '/invites', [FriendsController::class, 'invites']);
+    $r->addRoute('POST', '/invites/{id:\d+}/invite', [FriendsController::class, 'accept']);
+
+    $r->addRoute('GET', '/friends', [FriendsController::class, 'show']);
 
     // Articles
     $r->addRoute('GET', '/articles', [ArticlesController::class, 'index']);

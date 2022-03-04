@@ -40,8 +40,119 @@ class UsersController
                 }
             }
         }
+
+        $active = $_SESSION["name"];
+        $activeId = $_SESSION["id"];
+        //----------------------------------------------------------------
+        $invitedFriendsQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('friends')
+            ->where('friend_id = ?')
+            ->setParameter(0, $activeId)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $invitedFriends = [];
+        foreach ($invitedFriendsQuery as $invitedFriend) {
+            $invitedFriends [] = [(int)$invitedFriend['user_id'], (int) $invitedFriend['friend_id']];
+        }
+
+        $acceptedFriendsQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('friends')
+            ->where('user_id = ?')
+            ->setParameter(0, $activeId)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $acceptedFriends = [];
+        foreach ($acceptedFriendsQuery as $acceptedFriend) {
+            $acceptedFriends [] = [(int)$acceptedFriend['user_id'], (int)$acceptedFriend['friend_id']];
+        }
+
+        $friendsIds= [];
+        foreach ($invitedFriends as $invitedFriend){
+            foreach ($acceptedFriends as $acceptedFriend){
+                if($invitedFriend[0]==$acceptedFriend[1] && $invitedFriend[1]==$acceptedFriend[0]){
+                    $friendsIds [] = $invitedFriend[0];
+                }
+            }
+        }
+
+        $myPendingInvitationFromIds= [];
+        foreach ($acceptedFriends as $acceptedFriend){
+            if(!in_array(($acceptedFriend[1]), $friendsIds)){
+                $myPendingInvitationFromIds[]=$acceptedFriend[1];
+            }
+        }
+        $iHaveInvitedIds = [];
+        foreach ($invitedFriends as $invitedFriend) {
+            if (!in_array(($invitedFriend[0]), $friendsIds)) {
+                $iHaveInvitedIds[] = $invitedFriend[0];
+            }
+        }
+        $usersQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('users')
+            ->executeQuery()
+            ->fetchAllAssociative();
+        $userProfilesQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from('user_profiles')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $invitedUsers = [];
+        foreach ($usersQuery as $userData) {
+            foreach ($userProfilesQuery as $userProfileData) {
+                if($userData['id']==$userProfileData['user_id'] && in_array($userData['id'], $iHaveInvitedIds)) {
+                    $invitedUsers [] = new User(
+                        $userProfileData['name'],
+                        $userProfileData['surname'],
+                        $userProfileData['birthday'],
+                        $userData['email'],
+                        $userData['password'],
+                        $userData['created_at'],
+                        $userData['id']
+                    );
+                }
+            }
+        }
+        $friends = [];
+        foreach ($usersQuery as $userData) {
+            foreach ($userProfilesQuery as $userProfileData) {
+                if($userData['id']==$userProfileData['user_id'] && in_array($userData['id'], $friendsIds)) {
+                    $friends [] = new User(
+                        $userProfileData['name'],
+                        $userProfileData['surname'],
+                        $userProfileData['birthday'],
+                        $userData['email'],
+                        $userData['password'],
+                        $userData['created_at'],
+                        $userData['id']
+                    );
+                }
+            }
+        }
+        $invitedOrFriend = [...$invitedUsers, ...$friends];
+
+
+        $availableUsers = [];
+        foreach ($users as $user){
+            if(!in_array($user, $invitedOrFriend)){
+                $availableUsers [] = $user;
+            }
+        }
+
         return new View('Users/index', [
-            'users' => $users
+            'users' => $users,
+            'availableUsers' => $availableUsers,
+            'active' => $active,
+            'activeId' => $activeId
         ]);
     }
 

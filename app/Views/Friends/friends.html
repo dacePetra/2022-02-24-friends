@@ -10,22 +10,20 @@
         <ul>
             {% if active != "" %}
             <br>
-            <li >Welcome, {{ active }}!</li>
+            <li>Welcome, {{ active }}!</li>
             <li><a href="/users/logout">Log out</a></li>
             {% endif %}
         </ul>
     </div>
 </header>
-<p>
-    <a href="/articles">Articles</a>
-</p>
-<p>
-    <a href="/users">All users</a>
-</p>
-<p>
-    <a href="/invites">Invitations</a>
-</p>
-<p>
-    <a href="/friends">Friends</a>
-</p>
-</body>
+<a href="/welcome">Back</a><br><br>
+Friends
+<ul>
+    {% for friend in friends %}
+    <li>
+        {{ friend.name }} {{ friend.surname }}
+        <br>
+    </li>
+    {% endfor %}
+</ul>
+
