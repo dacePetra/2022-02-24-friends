@@ -9,12 +9,14 @@
 <h2>All users</h2>
 <ul>
     {% for availableUser in availableUsers %}
+    {% if activeId != availableUser.id %}
     <li>
+        {{ availableUser.name }} {{ availableUser.surname }}
         {% if activeId != availableUser.id %}
-        {{ availableUser.name }} {{ availableUser.surname }} ({{ availableUser.email }})
         <form method="post" action="/users/{{ availableUser.id }}/invite">
             <button type="submit">Invite</button>
         </form>
+        {% endif %}
     </li>
     <br>
     {% endif %}
