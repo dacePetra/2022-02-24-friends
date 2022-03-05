@@ -200,33 +200,33 @@ class UsersController
 
     public function register(array $vars):Redirect
     {
-//        if(empty($_POST['name']) || empty($_POST['surname']) || empty($_POST['birthday']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['password_repeat'])){
-//            // Empty input
-//            return new Redirect('/users/error');
-//        }
-//        if(!preg_match("/^[a-zA-Z]*$/", $_POST['name']) || !preg_match("/^[a-zA-Z]*$/", $_POST['surname'])){
-//            // Invalid name or surname
-//            return new Redirect('/users/error');
-//        }
-//        if($_POST['password'] != $_POST['password_repeat']){
-//            // Passwords don't match
-//            return new Redirect('/users/error');
-//        }
-//        if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
-//            // Invalid email
-//            return new Redirect('/users/error');
-//        }
-//        $usersQuery = Database::connection()
-//            ->createQueryBuilder()
-//            ->select('email')
-//            ->from('users')
-//            ->where("email = '{$_POST['email']}'")
-//            ->executeQuery()
-//            ->fetchAssociative();
-//        if($usersQuery!=false){
-//            // Email taken
-//            return new Redirect('/users/email');
-//        }
+        if(empty($_POST['name']) || empty($_POST['surname']) || empty($_POST['birthday']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['password_repeat'])){
+            // Empty input
+            return new Redirect('/users/signup');
+        }
+        if(!preg_match("/^[a-zA-Z]*$/", $_POST['name']) || !preg_match("/^[a-zA-Z]*$/", $_POST['surname'])){
+            // Invalid name or surname
+            return new Redirect('/users/signup');
+        }
+        if($_POST['password'] != $_POST['password_repeat']){
+            // Passwords don't match
+            return new Redirect('/users/signup');
+        }
+        if(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
+            // Invalid email
+            return new Redirect('/users/signup');
+        }
+        $usersQuery = Database::connection()
+            ->createQueryBuilder()
+            ->select('email')
+            ->from('users')
+            ->where("email = '{$_POST['email']}'")
+            ->executeQuery()
+            ->fetchAssociative();
+        if($usersQuery!=false){
+            // Email taken
+            return new Redirect('/users/signup'); //TODO make error messages in users/signup page
+        }
         $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
         Database::connection()
             ->insert('users', [
@@ -270,10 +270,10 @@ class UsersController
 
     public function enter(array $vars): Redirect
     {
-//        if(empty($_POST['logemail']) || empty($_POST['logpassword'])){
-//            // Empty input
-//            return new Redirect('/users/error');
-//        }
+        if(empty($_POST['input_email']) || empty($_POST['input_password'])){ //TODO error messages in login page
+            // Empty input
+            return new Redirect('/users/login');
+        }
         $usersQuery = Database::connection()
             ->createQueryBuilder()
             ->select('email, password, created_at, id')
@@ -283,15 +283,16 @@ class UsersController
             ->executeQuery()
             ->fetchAssociative();
 
-//        if($usersQuery['email']!=$_POST['input_email']){
-//            // Email not registered
-//            return new Redirect('/users/login');
-//        }
-//
-//        if (!password_verify($_POST['input_password'], $usersQuery['password'])) {
-//            // Wrong password
-//            return new Redirect('/users/login');
-//        }
+
+        if( $usersQuery == false){
+            // Email not registered
+            return new Redirect('/users/login');
+        }
+
+        if (!password_verify($_POST['input_password'], $usersQuery['password'])) {
+            // Wrong password
+            return new Redirect('/users/login');
+        }
 
         $userProfilesQuery = Database::connection()
             ->createQueryBuilder()

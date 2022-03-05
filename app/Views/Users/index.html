@@ -6,7 +6,9 @@
 {% block back %}
 <a href="/welcome">Back</a>
 {% endblock %}
+<br><br>
 <h2>All users</h2>
+<br>
 <ul>
     {% for availableUser in availableUsers %}
     {% if activeId != availableUser.id %}
